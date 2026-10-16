@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "disabilities",
+	"version": "${version}",
+	"name": "Disabilities",
+	"description": "Gain a random disability on a timer. Every time the timer runs out your current disabilities are cured and you get a brand new one.",
+	"authors": [
+		"nergzd723"
+	],
+	"contact": {
+		"sources": "https://github.com/nergzd723/disabilities-fabric",
+		"issues": "https://github.com/nergzd723/disabilities-fabric/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/disabilities/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.nergzd723.disabilities.DisabilitiesMod"
+		],
+		"client": [
+			"io.github.nergzd723.disabilities.client.DisabilitiesClient"
+		]
+	},
+	"mixins": [
+		"disabilities.mixins.json",
+		{
+			"config": "disabilities.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

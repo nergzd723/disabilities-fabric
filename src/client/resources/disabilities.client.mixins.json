@@ -1,0 +1,31 @@
+{
+	"required": true,
+	"package": "io.github.nergzd723.disabilities.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"AbstractClientPlayerMixin",
+		"AbstractContainerScreenMixin",
+		"CameraMixin",
+		"ChatScreenMixin",
+		"EntityHitboxDebugRendererMixin",
+		"EntityRendererMixin",
+		"GameRendererMixin",
+		"HudMixin",
+		"KeyboardInputMixin",
+		"LivingEntityRendererMixin",
+		"LocalPlayerMixin",
+		"MinecraftInvoker",
+		"MinecraftMixin",
+		"OptionInstanceMixin",
+		"PlayerModelMixin",
+		"ScreenMixin",
+		"SoundEngineMixin",
+		"StyleMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
