@@ -1,6 +1,10 @@
 # Builds the mod and runs the unit tests and server game tests for every push and pull request.
+# Version tags are handled by release.yml instead.
 name: build
-on: [pull_request, push]
+on:
+  push:
+    branches: ['**']
+  pull_request:
 
 jobs:
   build:

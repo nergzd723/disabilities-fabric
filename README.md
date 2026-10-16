@@ -113,6 +113,20 @@ The client game test plays through the mod in a real singleplayer world and save
 SDL_VIDEO_DRIVER=x11 SDL_VIDEO_FORCE_EGL=1 xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClientGameTest
 ```
 
+## Releasing
+
+Push a version tag and the `release` workflow builds the mod, runs the tests and publishes a GitHub release with
+the jar attached:
+
+```sh
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+The tag sets the version: `v1.2.0` produces `disabilities-1.2.0+26.3.jar`. Tags with a suffix, such as
+`v1.3.0-beta.1`, are published as pre-releases. Release notes are generated from the commits and pull requests
+since the previous release. Re-running the workflow for a tag replaces that release's jars.
+
 ## License
 
 MIT. See [LICENSE](LICENSE). The original mod's idea and design belong to its author, OddSense; this project

@@ -1,0 +1,77 @@
+# Publishes a GitHub release whenever a version tag is pushed:
+#
+#   git tag v1.2.0 && git push origin v1.2.0
+#
+# The tag is the version (v1.2.0 -> disabilities-1.2.0+26.3.jar). Tags with a suffix, such as v1.3.0-beta.1,
+# become pre-releases. Re-running the workflow for a tag replaces that release's jars.
+name: release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - name: read version from tag
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::'$GITHUB_REF_NAME' is not a version tag like v1.2.0 or v1.3.0-beta.1"
+            exit 1
+          fi
+          minecraft="$(sed -n 's/^minecraft_version=//p' gradle.properties)"
+          {
+            echo "version=$version"
+            echo "minecraft=$minecraft"
+            echo "full=$version+$minecraft"
+            if [[ "$version" == *-* ]]; then echo "prerelease=true"; else echo "prerelease=false"; fi
+          } >> "$GITHUB_OUTPUT"
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
+      # Includes the unit tests and the server game tests.
+      - name: build
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./gradlew build -Pmod_version="$VERSION"
+      - name: publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          MINECRAFT: ${{ steps.version.outputs.minecraft }}
+          FULL_VERSION: ${{ steps.version.outputs.full }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          files=("build/libs/disabilities-$FULL_VERSION.jar" "build/libs/disabilities-$FULL_VERSION-sources.jar")
+          ls -l "${files[@]}"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${files[@]}" --clobber
+          else
+            args=(
+              --verify-tag
+              --title "Disabilities $VERSION for Minecraft $MINECRAFT"
+              --notes "Fabric mod for Minecraft $MINECRAFT. Needs Fabric Loader, Fabric API and Java 25, on the server and on every client."
+              --generate-notes
+            )
+            if [[ "$PRERELEASE" == true ]]; then
+              args+=(--prerelease)
+            fi
+            gh release create "$GITHUB_REF_NAME" "${files[@]}" "${args[@]}"
+          fi

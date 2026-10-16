@@ -3,7 +3,8 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
+// e.g. 1.0.0+26.3. Release builds pass -Pmod_version=<version from the git tag>.
+version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
 
 base {
